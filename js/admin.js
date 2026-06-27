@@ -10,12 +10,12 @@ let editingId       = null;
    AUTH
    ============================================================ */
 async function checkAuth() {
-  if (!SUPABASE_CONFIGURED || !supabase) {
+  if (!SUPABASE_CONFIGURED || !supabaseClient) {
     /* Demo mode — skip auth */
     showDashboard('demo@example.com');
     return;
   }
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     showDashboard(session.user.email);
   } else {
@@ -52,7 +52,7 @@ async function doLogin(e) {
   btn.disabled = true;
   err.style.display = 'none';
 
-  if (!SUPABASE_CONFIGURED || !supabase) {
+  if (!SUPABASE_CONFIGURED || !supabaseClient) {
     /* Demo mode: accept any credentials */
     setTimeout(() => { showDashboard(email); }, 600);
     return;
@@ -60,7 +60,7 @@ async function doLogin(e) {
 
   try {
     const { data, error } = await withTimeout(
-      supabase.auth.signInWithPassword({ email, password: pass }),
+      supabaseClient.auth.signInWithPassword({ email, password: pass }),
       12000
     );
     if (error) throw error;
@@ -74,7 +74,7 @@ async function doLogin(e) {
 }
 
 async function doLogout() {
-  if (supabase) await supabase.auth.signOut();
+  if (supabaseClient) await supabaseClient.auth.signOut();
   showLogin();
 }
 
@@ -83,9 +83,9 @@ async function doLogout() {
    ============================================================ */
 async function loadAdminProperties() {
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       const { data, error } = await withTimeout(
-        supabase.from('properties').select('*').order('created_at', { ascending: false })
+        supabaseClient.from('properties').select('*').order('created_at', { ascending: false })
       );
       if (error) throw error;
       adminProperties = data || [];
@@ -262,7 +262,7 @@ function removePending(idx) {
 async function uploadImages() {
   const toUpload = pendingImages.filter(Boolean);
   if (!toUpload.length) return [];
-  if (!SUPABASE_CONFIGURED || !supabase) {
+  if (!SUPABASE_CONFIGURED || !supabaseClient) {
     /* Demo: return placeholder URLs */
     return toUpload.map(() => 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=85');
   }
@@ -273,9 +273,9 @@ async function uploadImages() {
   for (const file of toUpload) {
     const ext  = file.name.split('.').pop();
     const path = `properties/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { data, error } = await supabase.storage.from('property-images').upload(path, file);
+    const { data, error } = await supabaseClient.storage.from('property-images').upload(path, file);
     if (error) { showToast('Upload failed: ' + error.message, 'error'); continue; }
-    const { data: { publicUrl } } = supabase.storage.from('property-images').getPublicUrl(path);
+    const { data: { publicUrl } } = supabaseClient.storage.from('property-images').getPublicUrl(path);
     urls.push(publicUrl);
   }
 
@@ -311,13 +311,13 @@ async function submitProperty(e) {
       image_urls:  allUrls,
     };
 
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       let error;
       if (editingId) {
-        const res = await supabase.from('properties').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', editingId);
+        const res = await supabaseClient.from('properties').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', editingId);
         error = res.error;
       } else {
-        const res = await supabase.from('properties').insert(payload);
+        const res = await supabaseClient.from('properties').insert(payload);
         error = res.error;
       }
       if (error) throw error;
@@ -354,8 +354,8 @@ function confirmDelete(id) {
 async function doDelete() {
   if (!deleteTargetId) return;
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
-      const { error } = await supabase.from('properties').delete().eq('id', deleteTargetId);
+    if (SUPABASE_CONFIGURED && supabaseClient) {
+      const { error } = await supabaseClient.from('properties').delete().eq('id', deleteTargetId);
       if (error) throw error;
     } else {
       adminProperties = adminProperties.filter(p => p.id !== deleteTargetId);
@@ -420,8 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Auth state change listener */
-  if (supabase) {
-    supabase.auth.onAuthStateChange((event, session) => {
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') showLogin();
     });
   }

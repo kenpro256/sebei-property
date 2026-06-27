@@ -45,9 +45,9 @@ async function init() {
 
 async function fetchProperties() {
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       const { data, error } = await withTimeout(
-        supabase.from('properties').select('*').eq('status', 'available').order('created_at', { ascending: false })
+        supabaseClient.from('properties').select('*').eq('status', 'available').order('created_at', { ascending: false })
       );
       if (error) throw error;
       allProperties = data || [];

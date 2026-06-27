@@ -11,9 +11,9 @@ async function loadProperty() {
   let prop = null;
 
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       const { data, error } = await withTimeout(
-        supabase.from('properties').select('*').eq('id', id).single()
+        supabaseClient.from('properties').select('*').eq('id', id).single()
       );
       if (error) throw error;
       prop = data;
@@ -172,9 +172,9 @@ async function loadSimilar(p) {
   let similar = [];
 
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       const { data } = await withTimeout(
-        supabase.from('properties').select('*').eq('status', 'available').eq('type', p.type).neq('id', p.id).limit(3)
+        supabaseClient.from('properties').select('*').eq('status', 'available').eq('type', p.type).neq('id', p.id).limit(3)
       );
       similar = data || [];
     }

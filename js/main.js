@@ -7,9 +7,9 @@ async function loadFeatured() {
   let properties = [];
 
   try {
-    if (SUPABASE_CONFIGURED && supabase) {
+    if (SUPABASE_CONFIGURED && supabaseClient) {
       const { data, error } = await withTimeout(
-        supabase.from('properties').select('*').eq('status', 'available').eq('featured', true).limit(6)
+        supabaseClient.from('properties').select('*').eq('status', 'available').eq('featured', true).limit(6)
       );
       if (error) throw error;
       properties = data || [];
@@ -29,9 +29,12 @@ async function loadFeatured() {
 }
 
 function doHeroSearch() {
-  const type     = document.getElementById('searchType')?.value || '';
-  const location = document.getElementById('searchLocation')?.value.trim() || '';
-  const price    = document.getElementById('searchPrice')?.value || '';
+  const typeEl   = document.getElementById('searchType');
+  const locEl    = document.getElementById('searchLocation');
+  const priceEl  = document.getElementById('searchPrice');
+  const type     = typeEl   ? typeEl.value          : '';
+  const location = locEl    ? locEl.value.trim()    : '';
+  const price    = priceEl  ? priceEl.value         : '';
 
   const params = new URLSearchParams();
   if (type)     params.set('type', type);

@@ -154,16 +154,18 @@ const MOCK_PROPERTIES = [
    SUPABASE CLIENT — initialised AFTER mock data so a CDN
    failure never crashes the page (fallback always available)
    ============================================================ */
-let supabase = null;
+/* supabaseClient — named to avoid clashing with the `var supabase`
+   that the Supabase UMD bundle injects into the global scope.      */
+var supabaseClient = null;
 const SUPABASE_CONFIGURED = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
 try {
   if (SUPABASE_CONFIGURED && window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: false   /* prevents auth stall on GitHub Pages URLs */
+        detectSessionInUrl: false   /* prevents auth stall on GitHub Pages sub-path URLs */
       }
     });
   }
@@ -172,23 +174,21 @@ try {
 }
 
 /* ============================================================
-   TIMEOUT WRAPPER — prevents Supabase calls hanging forever
-   when the network is slow or the EU server is unreachable.
-   Falls through to the caller's catch block on timeout.
+   TIMEOUT WRAPPER — prevents Supabase calls hanging forever.
+   Uses .then()/.catch() instead of .finally() for ES5 compat.
    ============================================================ */
 function withTimeout(promise, ms) {
   ms = ms || 9000;
-  let timer;
-  const race = Promise.race([
-    promise,
-    new Promise(function(_, reject) {
-      timer = setTimeout(function() {
-        reject(new Error('Request timed out — check your connection'));
-      }, ms);
-    })
-  ]);
-  race.finally(function() { clearTimeout(timer); });
-  return race;
+  var timer;
+  var timeout = new Promise(function(_, reject) {
+    timer = setTimeout(function() {
+      reject(new Error('Request timed out — check your connection'));
+    }, ms);
+  });
+  return Promise.race([promise, timeout]).then(
+    function(result) { clearTimeout(timer); return result; },
+    function(err)    { clearTimeout(timer); throw err; }
+  );
 }
 
 /* ============================================================
