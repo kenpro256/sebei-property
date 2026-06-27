@@ -53,11 +53,11 @@
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <span class="overline">Uganda's Premier Property Firm — Est. 2012</span>
-    <h1>Find Your Perfect Property<br>in Kampala</h1>
-    <p>Browse 500+ verified listings — villas, apartments, commercial spaces, and prime land across Uganda's capital and beyond.</p>
+    <span class="overline hero-animate">Uganda's Premier Property Firm — Est. 2012</span>
+    <h1 class="hero-animate">Find Your Perfect Property<br>in Kampala</h1>
+    <p class="hero-animate">Browse 500+ verified listings — villas, apartments, commercial spaces, and prime land across Uganda's capital and beyond.</p>
 
-    <div class="search-box" id="heroSearch">
+    <div class="search-box hero-animate" id="heroSearch">
       <div class="field-wrap">
         <span class="field-icon">🏠</span>
         <select id="searchType" aria-label="Property type">
@@ -84,7 +84,7 @@
       <button class="btn btn-gold" onclick="doHeroSearch()">Search</button>
     </div>
 
-    <div class="hero-trust">
+    <div class="hero-trust hero-animate">
       <span>Verified Mailo &amp; Freehold Titles</span>
       <span>Licensed Agents</span>
       <span>After-Sale Support</span>
@@ -96,9 +96,9 @@
 <div class="stats-bar">
   <div class="container">
     <div class="stats-grid">
-      <div class="stat-item"><strong>500+</strong><span>Properties Listed</span></div>
-      <div class="stat-item"><strong>12+</strong><span>Years Experience</span></div>
-      <div class="stat-item"><strong>1,200+</strong><span>Happy Clients</span></div>
+      <div class="stat-item"><strong data-count="500" data-suffix="+">500+</strong><span>Properties Listed</span></div>
+      <div class="stat-item"><strong data-count="12" data-suffix="+">12+</strong><span>Years Experience</span></div>
+      <div class="stat-item"><strong data-count="1200" data-suffix="+">1,200+</strong><span>Happy Clients</span></div>
       <div class="stat-item"><strong>UGX 50B+</strong><span>Deals Closed</span></div>
     </div>
   </div>
@@ -129,7 +129,7 @@
 </section>
 
 <!-- ===== WHY US ===== -->
-<section class="section" style="background:var(--green-pale)">
+<section class="section reveal-section" style="background:var(--green-pale)">
   <div class="container">
     <div class="section-header centered">
       <span class="overline">Why Sebei Property Partners</span>
@@ -162,7 +162,7 @@
 </section>
 
 <!-- ===== LISTINGS BY TYPE ===== -->
-<section class="section" style="background:white">
+<section class="section reveal-section" style="background:white">
   <div class="container">
     <div class="section-header centered">
       <span class="overline">Browse by Category</span>
@@ -195,7 +195,7 @@
 </section>
 
 <!-- ===== TESTIMONIALS ===== -->
-<section class="section" style="background:var(--cream)">
+<section class="section reveal-section" style="background:var(--cream)">
   <div class="container">
     <div class="section-header centered">
       <span class="overline">Client Stories</span>
@@ -301,5 +301,6 @@
 
 <script src="js/config.js"></script>
 <script src="js/main.js"></script>
+<script src="js/animations.js"></script>
 </body>
 </html>

@@ -1414,3 +1414,34 @@ textarea.form-control { min-height: 110px; resize: vertical; }
 /* Responsive helpers */
 @media (min-width: 640px)  { .hide-mobile { display: block !important; } }
 @media (max-width: 639px)  { .hide-mobile { display: none !important;  } }
+
+/* ===== ANIMATIONS ===== */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-animate { will-change: opacity, transform; }
+
+  .property-card {
+    transition: transform 0.28s cubic-bezier(.22,.61,.36,1), box-shadow 0.28s ease, border-color 0.2s ease;
+  }
+  .property-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 16px 40px rgba(31,93,76,.18);
+    border-color: var(--green-pale);
+  }
+
+  .pillar-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .pillar-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+  .testimonial-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .testimonial-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+  .btn { transition: all 0.2s cubic-bezier(.22,.61,.36,1); }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .nav, .wa-float, .filters-section { display: none; }
+}
