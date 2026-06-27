@@ -1445,3 +1445,193 @@ textarea.form-control { min-height: 110px; resize: vertical; }
 @media print {
   .nav, .wa-float, .filters-section { display: none; }
 }
+
+/* ================================================================
+   MOBILE DESIGN POLISH — ≤767px
+   Most visitors are on phones — this block makes the experience
+   feel premium: larger touch targets, brand-coloured dropdowns,
+   tighter spacing, no iOS auto-zoom, safe WhatsApp placement.
+   ================================================================ */
+
+/* --- Spacing tighten-up ---------------------------------------- */
+@media (max-width: 767px) {
+  .container { padding: 0 1rem; }
+  .section   { padding: 2.75rem 0; }
+}
+
+/* --- Hero on small screens ------------------------------------ */
+@media (max-width: 767px) {
+  .hero-content {
+    padding: calc(var(--nav-h) + 2rem) 1rem 3rem;
+  }
+  .hero-content > p { font-size: 0.95rem; }
+  .hero-trust { gap: 1rem; margin-top: 1.25rem; }
+  .hero-trust span { font-size: 0.8rem; }
+}
+
+/* --- Page-hero on interior pages ------------------------------ */
+@media (max-width: 767px) {
+  .page-hero { padding: calc(var(--nav-h) + 1.5rem) 0 2rem; }
+}
+
+/* --- Search box: 16 px font prevents iOS auto-zoom ------------ */
+@media (max-width: 639px) {
+  .search-box {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    gap: 0.5rem;
+  }
+  .search-box select,
+  .search-box input {
+    font-size: 1rem;       /* ≥16 px = no iOS zoom */
+    min-height: 50px;
+    padding: 0.75rem 1rem 0.75rem 2.4rem;
+  }
+  .search-box .btn {
+    width: 100%;
+    min-height: 50px;
+    font-size: 1rem;
+    border-radius: var(--radius);
+    justify-content: center;
+  }
+}
+
+/* ===============================================================
+   FILTER BAR — the main mobile improvement
+   Rebrand selects to green/gold, 48 px touch targets, 2-col grid
+   =============================================================== */
+@media (max-width: 767px) {
+  .filters-section { padding: 1rem 0; }
+  .filters-inner   { gap: 0.875rem; }
+
+  /* Type pills — comfortably tappable, wrap cleanly */
+  .filter-tabs { gap: 0.4rem; }
+  .filter-tab {
+    padding: 0.6rem 1.05rem;
+    font-size: 0.875rem;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  /* Dropdown grid: 2 columns so they fill the screen cleanly */
+  .filter-selects {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .filter-select-wrap { flex: none; min-width: 0; }
+
+  /* Styled to match the green/gold brand */
+  .filter-select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.625rem 2rem 0.625rem 0.875rem;
+    font-size: 1rem;                            /* 16 px — no iOS zoom */
+    font-weight: 500;
+    color: var(--dark);
+    background: var(--white);
+    border: 1.5px solid rgba(31, 93, 76, 0.38); /* subtle green */
+    border-radius: var(--radius);
+    transition: border-color var(--t), box-shadow var(--t);
+  }
+  .filter-select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.2);
+    outline: none;
+  }
+  /* Green chevron to complete the brand look */
+  .filter-select-wrap::after {
+    color: var(--green);
+    font-size: 0.78rem;
+    right: 0.7rem;
+  }
+  /* Clear button spans full width on its own row */
+  .filter-selects > .btn {
+    grid-column: 1 / -1;
+    min-height: 42px;
+    font-size: 0.875rem;
+  }
+}
+
+/* --- Property cards ------------------------------------------- */
+@media (max-width: 767px) {
+  .properties-grid { gap: 1.25rem; }
+  .card-image      { padding-top: 60%; }
+  .card-body       { padding: 1rem 1.125rem 1.125rem; }
+  .card-price      { font-size: 1.42rem; }
+  .card-features   { gap: 0.75rem; }
+}
+
+/* --- Stats bar ------------------------------------------------ */
+@media (max-width: 767px) {
+  .stats-bar { padding: 2rem 0; }
+  .stat-item strong { font-size: 1.75rem; }
+}
+
+/* --- CTA section: stack buttons on small screens -------------- */
+@media (max-width: 639px) {
+  .cta-section { padding: 3.5rem 0; }
+  .cta-buttons { flex-direction: column; align-items: center; }
+  .cta-buttons .btn { width: 100%; max-width: 320px; }
+}
+
+/* --- Nav mobile menu: taller tap targets ---------------------- */
+@media (max-width: 767px) {
+  .nav-mobile { padding: 0.25rem 1rem 2.5rem; }
+  .nav-mobile ul li a {
+    padding: 1rem 0.875rem;
+    font-size: 1rem;
+  }
+}
+
+/* --- WhatsApp float: tuck into corner, doesn't overlap toasts - */
+@media (max-width: 767px) {
+  .wa-float {
+    width: 50px; height: 50px;
+    bottom: 1.25rem;
+    right: 1rem;
+  }
+  .wa-float svg { width: 22px; height: 22px; }
+  /* Push toasts above the WA button */
+  .toast-wrap { bottom: 5rem; }
+}
+
+/* --- Contact form inputs: 16 px prevents iOS zoom ------------- */
+@media (max-width: 767px) {
+  .form-control {
+    font-size: 1rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+  }
+  textarea.form-control { min-height: 120px; }
+  /* First/last name side-by-side → stack on smallest phones */
+  @media (max-width: 479px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+}
+
+/* --- Pillars / testimonials: comfy mobile padding ------------- */
+@media (max-width: 599px) {
+  .pillar-card      { padding: 1.5rem; }
+  .testimonial-card { padding: 1.375rem; }
+}
+
+/* --- Footer spacing ------------------------------------------- */
+@media (max-width: 639px) {
+  .footer { padding: 3rem 0 0; }
+  .footer-grid { gap: 2rem; }
+}
+
+/* --- Safe area on notched phones (iPhone X+) ------------------ */
+@supports (padding: max(0px)) {
+  @media (max-width: 767px) {
+    .wa-float {
+      bottom: max(1.25rem, calc(env(safe-area-inset-bottom) + 0.75rem));
+    }
+    .nav-mobile {
+      padding-bottom: max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem));
+    }
+  }
+}
