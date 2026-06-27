@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Sebei Property Partners</title>
+  <!-- NOT indexed by search engines -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="admin-page">
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen" class="admin-login-wrap">
+  <div class="admin-login-card">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.75rem">
+      <span class="logo-icon" style="width:44px;height:44px;font-size:0.75rem">SPP</span>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--dark)">Sebei Property</div>
+        <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);font-weight:600">Partners · Admin</div>
+      </div>
+    </div>
+    <h2>Sign In</h2>
+    <p>Property management dashboard</p>
+
+    <div id="loginError" style="display:none;background:#ffe0de;color:#b02a1e;padding:0.75rem 1rem;border-radius:var(--radius);font-size:0.82rem;margin-bottom:1rem"></div>
+
+    <form id="loginForm" onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" class="form-control" id="loginEmail" required placeholder="admin@sebeipropertypartners.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="loginPass">Password</label>
+        <input type="password" class="form-control" id="loginPass" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-green btn-lg btn-block" id="loginBtn">Sign In</button>
+    </form>
+
+    <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:1.5rem">
+      <a href="../index.html" style="color:var(--muted)">← Back to website</a>
+    </p>
+  </div>
+</div>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div id="adminDashboard" style="display:none">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-logo">
+      <div style="display:flex;align-items:center;gap:0.6rem">
+        <span class="logo-icon" style="width:36px;height:36px;font-size:0.65rem">SPP</span>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:0.88rem;color:white">Sebei Property</div>
+          <div style="font-size:0.58rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);font-weight:600">Admin Panel</div>
+        </div>
+      </div>
+    </div>
+    <nav class="admin-nav">
+      <a class="admin-nav-link active" data-view="properties" onclick="showView('properties')">
+        <span class="n-icon">🏠</span> Properties
+      </a>
+      <a class="admin-nav-link" data-view="add" onclick="openAddModal()">
+        <span class="n-icon">➕</span> Add Property
+      </a>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:0.75rem 0">
+      <a class="admin-nav-link" href="../index.html" target="_blank">
+        <span class="n-icon">🌐</span> View Website
+      </a>
+      <a class="admin-nav-link" href="../listings.html" target="_blank">
+        <span class="n-icon">📋</span> View Listings
+      </a>
+    </nav>
+    <div class="admin-sidebar-foot">
+      <p id="adminUserEmail" style="margin-bottom:0.5rem">Loading…</p>
+      <a onclick="doLogout()" style="cursor:pointer">Sign Out →</a>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="admin-main">
+    <!-- Top bar -->
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <button class="admin-sidebar-toggle" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <h1 id="topbarTitle">Properties</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <button class="btn btn-gold btn-sm" onclick="openAddModal()">+ Add Property</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="admin-content">
+
+      <!-- Demo mode banner (shown if Supabase not configured) -->
+      <div class="demo-banner" id="demoBanner" style="display:none">
+        ⚠️ <strong>Demo Mode</strong> — Supabase is not configured. Changes won't be saved.
+        Open <code>js/config.js</code> and add your Supabase URL and anon key to enable persistence.
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-stats" id="adminStats">
+        <div class="admin-stat"><div class="astat-val" id="statTotal">–</div><div class="astat-label">Total Listings</div></div>
+        <div class="admin-stat"><div class="astat-val" id="statSale">–</div><div class="astat-label">For Sale</div></div>
+        <div class="admin-stat"><div class="astat-val" id="statRent">–</div><div class="astat-label">For Rent</div></div>
+        <div class="admin-stat"><div class="astat-val" id="statLand">–</div><div class="astat-label">Land</div></div>
+      </div>
+
+      <!-- Properties table -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3>All Properties</h3>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input type="text" id="tableSearch" class="form-control" placeholder="Search…" style="padding:0.4rem 0.75rem;font-size:0.82rem;width:180px" oninput="filterTable()">
+            <div class="select-wrap" style="min-width:130px">
+              <select class="form-control" id="tableTypeFilter" style="padding:0.4rem 1.75rem 0.4rem 0.75rem;font-size:0.82rem" onchange="filterTable()">
+                <option value="">All Types</option>
+                <option value="sale">For Sale</option>
+                <option value="rent">For Rent</option>
+                <option value="land">Land</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Property</th>
+                <th>Type</th>
+                <th class="hide-mobile">Price</th>
+                <th class="hide-mobile">Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="propTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Loading properties…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD / EDIT MODAL ===== -->
+<div class="modal-overlay" id="propModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add New Property</h3>
+      <button class="modal-close" onclick="closeModal('propModal')">×</button>
+    </div>
+    <div class="modal-body" style="max-height:75vh;overflow-y:auto">
+      <form id="propForm" onsubmit="submitProperty(event)">
+        <input type="hidden" id="editId">
+
+        <div class="form-group">
+          <label for="fTitle">Property Title *</label>
+          <input type="text" class="form-control" id="fTitle" required placeholder="e.g. Executive 4-Bedroom Villa, Kololo">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fType">Listing Type *</label>
+            <div class="select-wrap">
+              <select class="form-control" id="fType" required>
+                <option value="">Select…</option>
+                <option value="sale">For Sale</option>
+                <option value="rent">For Rent</option>
+                <option value="land">Land</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fStatus">Status *</label>
+            <div class="select-wrap">
+              <select class="form-control" id="fStatus" required>
+                <option value="available">Available</option>
+                <option value="sold">Sold / Taken</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fPrice">Price (UGX) *</label>
+            <input type="number" class="form-control" id="fPrice" required placeholder="e.g. 850000000" min="0">
+            <div class="form-hint" id="priceHint"></div>
+          </div>
+          <div class="form-group">
+            <label for="fLocation">Location *</label>
+            <input type="text" class="form-control" id="fLocation" required placeholder="e.g. Kololo">
+          </div>
+        </div>
+
+        <div class="form-row" id="bedsRow">
+          <div class="form-group">
+            <label for="fBeds">Bedrooms</label>
+            <input type="number" class="form-control" id="fBeds" min="0" max="20" placeholder="e.g. 4">
+          </div>
+          <div class="form-group">
+            <label for="fBaths">Bathrooms</label>
+            <input type="number" class="form-control" id="fBaths" min="0" max="20" placeholder="e.g. 3">
+          </div>
+          <div class="form-group">
+            <label for="fSize">Size / Area</label>
+            <input type="text" class="form-control" id="fSize" placeholder="e.g. 450 sqm or 2 acres">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="fDesc">Description *</label>
+          <textarea class="form-control" id="fDesc" required placeholder="Full property description — neighbourhood, features, title type…" style="min-height:130px"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="fFeatured" style="margin-right:0.4rem">
+            Feature on homepage
+          </label>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label>Property Photos</label>
+          <div class="img-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+            <div class="upload-icon">📸</div>
+            <p><strong>Click to upload photos</strong> or drag and drop</p>
+            <p style="font-size:0.72rem;margin-top:0.25rem">JPG, PNG, WebP — Max 5MB each · Multiple files allowed</p>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
+          <div class="uploading-bar" id="uploadBar"><div class="bar-fill"></div></div>
+          <div class="img-previews" id="imgPreviews"></div>
+
+          <!-- Existing URLs (for editing) -->
+          <div id="existingUrlsWrap" style="margin-top:0.5rem;display:none">
+            <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem">Current photos (from database):</p>
+            <div id="existingPreviews" class="img-previews"></div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('propModal')">Cancel</button>
+      <button class="btn btn-green" id="saveBtn" onclick="submitProperty(event)">Save Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM DELETE ===== -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-card">
+    <div class="icon">🗑️</div>
+    <h3>Delete Property?</h3>
+    <p>This will permanently remove the listing from the website. This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn" style="background:#e74c3c;color:white" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">Property — Sebei Property Partners</title>
+  <meta name="description" content="View property details, photos, and enquire via WhatsApp.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .property-page { padding-top: var(--nav-h); background: var(--cream); }
+    .prop-section { padding: 2rem 0; }
+    .prop-desc { font-size: 0.95rem; line-height: 1.85; color: var(--mid); }
+    .prop-desc + .prop-desc { margin-top: 1rem; }
+    .prop-detail-tag {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: var(--green-pale); color: var(--green);
+      padding: 0.3rem 0.7rem; border-radius: 50px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .similar-section { background: white; padding: 3rem 0; }
+    .lightbox-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.9);
+      z-index: 2000; display: none;
+      align-items: center; justify-content: center;
+    }
+    .lightbox-overlay.open { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: var(--radius); }
+    .lightbox-close {
+      position: absolute; top: 1rem; right: 1rem;
+      color: white; font-size: 2rem; cursor: pointer; line-height: 1;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.1); border-radius: 50%;
+    }
+    .lightbox-prev, .lightbox-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      color: white; font-size: 1.75rem; cursor: pointer;
+      background: rgba(255,255,255,.12); border: none;
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--t);
+    }
+    .lightbox-prev { left: 1rem; }
+    .lightbox-next { right: 1rem; }
+    .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,.2); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav scrolled" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">SPP</span>
+      <div>
+        <span class="logo-name">Sebei Property</span>
+        <span class="logo-sub">Partners</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="listings.html" class="active">Listings</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="listings.html" class="btn btn-gold nav-cta">View Properties</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="listings.html">Listings</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="property-page" id="propPage">
+
+  <!-- Loading state -->
+  <div id="propLoading" class="container" style="padding-top:3rem;padding-bottom:3rem">
+    <div class="sk-card" style="margin-bottom:1rem"><div class="skeleton" style="height:420px"></div></div>
+    <div class="sk-body">
+      <div class="skeleton sk-line short" style="height:18px;margin-bottom:1rem"></div>
+      <div class="skeleton sk-line" style="height:14px;margin-bottom:0.75rem"></div>
+      <div class="skeleton sk-line shorter" style="height:14px"></div>
+    </div>
+  </div>
+
+  <!-- Property content (hidden until loaded) -->
+  <div id="propContent" class="hidden">
+
+    <!-- Breadcrumb bar -->
+    <div style="background:white;border-bottom:1px solid var(--border);padding:0.75rem 0">
+      <div class="container">
+        <div class="breadcrumb" style="color:var(--muted)">
+          <a href="index.html">Home</a>
+          <span class="breadcrumb-sep">›</span>
+          <a href="listings.html">Listings</a>
+          <span class="breadcrumb-sep">›</span>
+          <span id="breadcrumbTitle" style="color:var(--dark)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top:2rem;padding-bottom:3rem">
+      <div class="property-detail-layout">
+
+        <!-- LEFT: Gallery + Details -->
+        <div>
+          <!-- Gallery -->
+          <div class="gallery-main" id="galleryMain" onclick="openLightbox(currentImg)">
+            <img id="galleryMainImg" src="" alt="Property photo">
+            <div class="gallery-nav">
+              <button onclick="event.stopPropagation();changeImg(-1)" aria-label="Previous">‹</button>
+              <button onclick="event.stopPropagation();changeImg(1)"  aria-label="Next">›</button>
+            </div>
+            <span class="gallery-count" id="galleryCount">1 / 1</span>
+          </div>
+          <div class="gallery-thumbs" id="galleryThumbs"></div>
+
+          <!-- Feature chips -->
+          <div class="feature-chips" id="featureChips"></div>
+
+          <!-- Title + type + location -->
+          <div style="margin-bottom:1.5rem">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem">
+              <span class="card-badge" id="propTypeBadge" style="position:static;font-size:0.75rem;padding:0.35rem 0.875rem"></span>
+              <span id="propLocation" class="card-location" style="font-size:0.85rem"></span>
+            </div>
+            <h1 id="propTitle" style="font-size:clamp(1.5rem,4vw,2rem);margin-bottom:0"></h1>
+          </div>
+
+          <!-- Description -->
+          <h3 style="font-size:1rem;margin-bottom:0.75rem">Property Description</h3>
+          <div class="prop-desc" id="propDesc"></div>
+
+          <!-- Additional details -->
+          <div style="margin-top:2rem;padding:1.5rem;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+            <h3 style="font-size:1rem;margin-bottom:1.25rem">Property Details</h3>
+            <div id="propDetailRows" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 2rem"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Enquiry card -->
+        <div>
+          <div class="enquire-card">
+            <div class="eq-price" id="eqPrice"></div>
+            <p class="eq-note" id="eqNote"></p>
+            <a href="#" id="waEnquireBtn" class="btn btn-whatsapp btn-lg btn-block" target="_blank" style="margin-bottom:0.75rem">
+              💬 Enquire on WhatsApp
+            </a>
+            <a href="tel:+256700123456" class="btn btn-outline btn-block" style="margin-bottom:0">
+              📞 Call +256 700 123 456
+            </a>
+
+            <div class="enquire-divider"></div>
+
+            <div id="enquireSummaryRows"></div>
+
+            <div class="enquire-divider"></div>
+
+            <p style="font-size:0.78rem;color:var(--muted);text-align:center;margin:0">
+              🔒 All titles verified by Sebei Property Partners
+            </p>
+
+            <div class="enquire-divider"></div>
+
+            <!-- Share -->
+            <p style="font-size:0.78rem;font-weight:600;color:var(--dark);margin-bottom:0.5rem">Share this listing</p>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <button onclick="shareWA()" class="btn btn-sm" style="background:var(--green-pale);color:var(--green);flex:1">💬 WhatsApp</button>
+              <button onclick="copyLink()" class="btn btn-sm" style="background:var(--green-pale);color:var(--green);flex:1">🔗 Copy Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Not found -->
+  <div id="propNotFound" class="hidden">
+    <div class="container" style="padding:5rem 0;text-align:center">
+      <div style="font-size:3rem;margin-bottom:1rem">🏡</div>
+      <h2>Property Not Found</h2>
+      <p style="margin:0.75rem 0 2rem">This listing may have been removed or the link is incorrect.</p>
+      <a href="listings.html" class="btn btn-green btn-lg">Browse All Listings</a>
+    </div>
+  </div>
+</div>
+
+<!-- SIMILAR LISTINGS -->
+<div class="similar-section" id="similarSection" style="display:none">
+  <div class="container">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
+      <div>
+        <span class="overline">You May Also Like</span>
+        <h2>Similar Properties</h2>
+      </div>
+      <a href="listings.html" class="btn btn-outline">View All →</a>
+    </div>
+    <div class="properties-grid" id="similarGrid"></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section" style="padding:3.5rem 0">
+  <div class="container">
+    <h2>Ready to Enquire?</h2>
+    <p>Our agents respond within 30 minutes during business hours. Reach us on WhatsApp anytime.</p>
+    <div class="cta-buttons">
+      <a id="ctaWaBtn" href="https://wa.me/256700123456" class="btn btn-whatsapp btn-lg" target="_blank">💬 WhatsApp Enquiry</a>
+      <a href="contact.html" class="btn btn-outline-white btn-lg">Contact Office</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <span class="logo-icon">SPP</span>
+          <div><span class="logo-name">Sebei Property</span><span class="logo-sub">Partners</span></div>
+        </a>
+        <p>Uganda's trusted name in real estate since 2012.</p>
+      </div>
+      <div><h5>Browse</h5><ul><li><a href="listings.html">All Listings</a></li><li><a href="listings.html?type=sale">For Sale</a></li><li><a href="listings.html?type=rent">For Rent</a></li><li><a href="listings.html?type=land">Land</a></li></ul></div>
+      <div><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div><h5>Contact</h5><address>Plot 45, Yusuf Lule Road<br>Nakasero, Kampala<br><br><a href="tel:+256700123456">+256 700 123 456</a><br><a href="mailto:info@sebeipropertypartners.com">info@sebeipropertypartners.com</a></address></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Sebei Property Partners Ltd. All rights reserved.</p></div>
+  </div>
+</footer>
+
+<a href="https://wa.me/256700123456" class="wa-float" target="_blank" title="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">×</span>
+  <button class="lightbox-prev" onclick="event.stopPropagation();changeImg(-1)">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="Property photo" onclick="event.stopPropagation()">
+  <button class="lightbox-next" onclick="event.stopPropagation();changeImg(1)">›</button>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="js/config.js"></script>
+<script src="js/property.js"></script>
+</body>
+</html>
