@@ -12,11 +12,9 @@ async function loadProperty() {
 
   try {
     if (SUPABASE_CONFIGURED && supabase) {
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await withTimeout(
+        supabase.from('properties').select('*').eq('id', id).single()
+      );
       if (error) throw error;
       prop = data;
     }
@@ -175,13 +173,9 @@ async function loadSimilar(p) {
 
   try {
     if (SUPABASE_CONFIGURED && supabase) {
-      const { data } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('status', 'available')
-        .eq('type', p.type)
-        .neq('id', p.id)
-        .limit(3);
+      const { data } = await withTimeout(
+        supabase.from('properties').select('*').eq('status', 'available').eq('type', p.type).neq('id', p.id).limit(3)
+      );
       similar = data || [];
     }
   } catch (e) { /* ignore */ }

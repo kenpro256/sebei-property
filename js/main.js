@@ -8,12 +8,9 @@ async function loadFeatured() {
 
   try {
     if (SUPABASE_CONFIGURED && supabase) {
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('status', 'available')
-        .eq('featured', true)
-        .limit(6);
+      const { data, error } = await withTimeout(
+        supabase.from('properties').select('*').eq('status', 'available').eq('featured', true).limit(6)
+      );
       if (error) throw error;
       properties = data || [];
     }

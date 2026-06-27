@@ -59,11 +59,14 @@ async function doLogin(e) {
   }
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    const { data, error } = await withTimeout(
+      supabase.auth.signInWithPassword({ email, password: pass }),
+      12000
+    );
     if (error) throw error;
     showDashboard(data.user.email);
   } catch (ex) {
-    err.textContent = ex.message || 'Login failed. Check your credentials.';
+    err.textContent = ex.message || 'Connection timed out — check your network and try again.';
     err.style.display = 'block';
     btn.textContent = 'Sign In';
     btn.disabled = false;
@@ -81,10 +84,9 @@ async function doLogout() {
 async function loadAdminProperties() {
   try {
     if (SUPABASE_CONFIGURED && supabase) {
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await withTimeout(
+        supabase.from('properties').select('*').order('created_at', { ascending: false })
+      );
       if (error) throw error;
       adminProperties = data || [];
     } else {

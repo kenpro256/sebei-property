@@ -159,10 +159,36 @@ const SUPABASE_CONFIGURED = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
 try {
   if (SUPABASE_CONFIGURED && window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false   /* prevents auth stall on GitHub Pages URLs */
+      }
+    });
   }
 } catch (e) {
   console.warn('Supabase init failed, using demo data:', e.message);
+}
+
+/* ============================================================
+   TIMEOUT WRAPPER — prevents Supabase calls hanging forever
+   when the network is slow or the EU server is unreachable.
+   Falls through to the caller's catch block on timeout.
+   ============================================================ */
+function withTimeout(promise, ms) {
+  ms = ms || 9000;
+  let timer;
+  const race = Promise.race([
+    promise,
+    new Promise(function(_, reject) {
+      timer = setTimeout(function() {
+        reject(new Error('Request timed out — check your connection'));
+      }, ms);
+    })
+  ]);
+  race.finally(function() { clearTimeout(timer); });
+  return race;
 }
 
 /* ============================================================
