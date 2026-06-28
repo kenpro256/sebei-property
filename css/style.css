@@ -395,19 +395,32 @@ p  { color: var(--mid); line-height: 1.7; }
 
 /* ===== PROPERTY CARD ===== */
 .property-card {
-  background: var(--white);
+  background: linear-gradient(180deg, #ffffff 0%, #fdfbf7 100%);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 1px 3px rgba(26,26,26,.05), 0 12px 28px -12px rgba(31,93,76,.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  border: 1px solid var(--border);
+  border: 1px solid #ece5d9;
+  position: relative;
 }
+.property-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-pale));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+.property-card:hover::after { opacity: 1; }
 .property-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 1px 3px rgba(26,26,26,.05), 0 22px 44px -16px rgba(31,93,76,.28);
+  border-color: var(--gold-pale);
 }
 .card-image {
   position: relative;
@@ -773,12 +786,21 @@ p  { color: var(--mid); line-height: 1.7; }
 }
 .pillar-card:hover { box-shadow: var(--shadow-md); }
 .pillar-icon {
-  width: 54px; height: 54px;
-  background: var(--green-pale);
-  border-radius: 12px;
+  width: 56px; height: 56px;
+  background: linear-gradient(145deg, var(--green-pale), #dce9e4);
+  border: 1px solid rgba(31,93,76,.12);
+  border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
+  color: var(--green);
   margin-bottom: 1.25rem;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pillar-icon svg { width: 26px; height: 26px; stroke-width: 1.75; }
+.pillar-card:hover .pillar-icon {
+  background: linear-gradient(145deg, var(--green), var(--green-mid));
+  color: var(--gold-pale);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px -6px rgba(31,93,76,.4);
 }
 .pillar-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
 .pillar-card p   { font-size: 0.875rem; }
@@ -1424,8 +1446,8 @@ textarea.form-control { min-height: 110px; resize: vertical; }
   }
   .property-card:hover {
     transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 16px 40px rgba(31,93,76,.18);
-    border-color: var(--green-pale);
+    box-shadow: 0 1px 3px rgba(26,26,26,.05), 0 24px 48px -16px rgba(31,93,76,.30);
+    border-color: var(--gold-pale);
   }
 
   .pillar-card {
@@ -1635,3 +1657,28 @@ textarea.form-control { min-height: 110px; resize: vertical; }
     }
   }
 }
+
+/* ============================================================
+   VISUAL POLISH — depth, tint & gold accents
+   ============================================================ */
+
+/* Tinted, faintly-textured background so white cards separate */
+.bg-featured {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(31,93,76,.04) 1px, transparent 0) 0 0 / 24px 24px,
+    linear-gradient(180deg, #f4efe5 0%, var(--cream) 60%);
+}
+
+/* Refined gold accent rule under centered section headings */
+.section-header.centered h2::after {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 3px;
+  margin: 0.95rem auto 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-pale));
+  border-radius: 2px;
+}
+
+/* Lucide icons render crisp at brand weight */
+.pillar-icon [data-lucide] { width: 26px; height: 26px; }
